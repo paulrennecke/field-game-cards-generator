@@ -11,39 +11,46 @@
           rang: 5,
           rolle: "Silberrücken",
           anzahl: 4,
-          stärke:
+          texts: [
             "Spezialkraft: Die stärkste Kraft im Dschungel. Schlägt fast jeden.",
-          schwäche: "Wird nur vom Giftfrosch (1) besiegt.",
+            "Schwäche: Wird nur vom Giftfrosch (1) besiegt."
+          ],
         },
         {
           rang: 4,
           rolle: "Jaguar",
           anzahl: 6,
-          stärke: "Stärke: Schlägt Ränge 1, 2 und 3.",
-          schwäche: "Verliert gegen den Silberrücken (5).",
+          texts: [
+            "Stärke: Schlägt Ränge 1, 2 und 3.",
+            "Schwäche: Verliert gegen den Silberrücken (5)."
+          ],
         },
         {
           rang: 3,
           rolle: "Expeditions-leiter",
           anzahl: 8,
-          stärke: "Stärke: Schlägt Ränge 1 und 2.",
-          schwäche: "Verliert gegen Jaguar (4) und Silberrücken (5).",
+          texts: [
+            "Stärke: Schlägt Ränge 1 und 2.",
+            "Schwäche: Verliert gegen Jaguar (4) und Silberrücken (5)."
+          ],
         },
         {
           rang: 2,
           rolle: "Früchte-pflücker",
           anzahl: 2,
-          stärke:
+          texts: [
             "Spezialkraft: NUR DU darfst die goldene Ananas berühren und tragen!",
-          schwäche: "Verliert gegen fast alle anderen (3, 4, 5).",
+            "Schwäche: Verliert gegen fast alle anderen (3, 4, 5)."
+          ],
         },
         {
           rang: 1,
           rolle: "Giftfrosch",
           anzahl: 4,
-          stärke:
+          texts: [
             "Spezialkraft: Du bist der Einzige, der den Silberrücken (5) ausschaltet!",
-          schwäche: "Verliert gegen die Ränge 2, 3 und 4.",
+            "Schwäche: Verliert gegen die Ränge 2, 3 und 4."
+          ],
         },
       ];
 
@@ -171,12 +178,14 @@
         let html = "";
 
         cardData.forEach((card, index) => {
+          if (!card.texts) card.texts = [];
+          const textsStr = card.texts.join(' | ');
           html += `
             <div class="card-edit-row">
               <input type="number" value="${card.rang}" onchange="updateCard(${index}, 'rang', this.value)" placeholder="Rang" min="1" max="5">
               <input type="text" value="${card.rolle}" onchange="updateCard(${index}, 'rolle', this.value)" placeholder="Rolle">
               <input type="number" value="${card.anzahl}" onchange="updateCard(${index}, 'anzahl', this.value)" placeholder="Anzahl" min="0">
-              <input type="text" value="${card.stärke}" onchange="updateCard(${index}, 'stärke', this.value)" placeholder="Stärke">
+              <input type="text" value="${textsStr.replace(/"/g, '&quot;')}" onchange="updateCardTextsFromString(${index}, this.value)" placeholder="Texte (getrennt durch |)" style="flex: 1;">
               <button onclick="removeCard(${index})">🗑️</button>
             </div>
           `;
@@ -193,6 +202,11 @@
         updateTotal();
       }
 
+      function updateCardTextsFromString(cardIndex, value) {
+        cardData[cardIndex].texts = value.split('|').map(t => t.trim()).filter(t => t);
+        generateCards();
+      }
+
       function removeCard(index) {
         cardData.splice(index, 1);
         renderEditor();
@@ -204,7 +218,7 @@
           rang: 1,
           rolle: "Neue Rolle",
           anzahl: 1,
-          stärke: "Beschreibung",
+          texts: ["Text 1", "Text 2"],
         });
         renderEditor();
         generateCards();
@@ -229,8 +243,7 @@
                 rang: card.rang,
                 rolle: card.rolle,
                 anzahl: card.anzahl,
-                stärke: card.stärke,
-                schwäche: card.schwäche,
+                texts: card.texts || [],
                 teamColor: team.color,
                 teamName: team.name,
               });
@@ -244,13 +257,6 @@
         html += '<div class="screen-only">';
         html += '<div class="page page-front">';
         cardData.forEach((card) => {
-          // Format stärke to highlight the label
-          let stärkeFormatted = card.stärke || "";
-          if (stärkeFormatted) {
-            stärkeFormatted = stärkeFormatted
-              .replace(/^(Stärke:)/, "<strong>$1</strong>")
-              .replace(/^(Spezialkraft:)/, "<strong>$1</strong>");
-          }
           html += `
             <div class="card-wrapper">
               <div class="card-anzahl">Anzahl: ${card.anzahl}</div>
@@ -259,9 +265,16 @@
                 <div class="card-content">
                   <div class="rank">Rang ${card.rang}</div>
                   <div class="role-name">${card.rolle}</div>
-                  <div class="card-info">
-                    ${stärkeFormatted ? `<div class="card-detail">${stärkeFormatted}</div>` : ""}
-                    ${card.schwäche ? `<div class="card-detail"><strong>Schwäche:</strong> ${card.schwäche}</div>` : ""}
+                  <div class="card-info">`;
+          
+          if (card.texts && card.texts.length > 0) {
+            card.texts.forEach(text => {
+              let formattedText = text.replace(/^([^:]+:)/, '<strong>$1</strong>');
+              html += `<div class="card-detail">${formattedText}</div>`;
+            });
+          }
+          
+          html += `
                   </div>
                 </div>
               </div>
@@ -283,22 +296,22 @@
           html += '<div class="page page-front">';
           for (let i = startIdx; i < endIdx; i++) {
             const card = allCardsData[i];
-            // Format stärke to highlight the label
-            let stärkeFormatted = card.stärke || "";
-            if (stärkeFormatted) {
-              stärkeFormatted = stärkeFormatted
-                .replace(/^(Stärke:)/, "<strong>$1</strong>")
-                .replace(/^(Spezialkraft:)/, "<strong>$1</strong>");
-            }
             html += `
               <div class="card">
                 <img src="${card.rang}.png" alt="Rang ${card.rang}" class="card-background">
                 <div class="card-content">
                   <div class="rank">Rang ${card.rang}</div>
                   <div class="role-name">${card.rolle}</div>
-                  <div class="card-info">
-                    ${stärkeFormatted ? `<div class="card-detail">${stärkeFormatted}</div>` : ""}
-                    ${card.schwäche ? `<div class="card-detail"><strong>Schwäche:</strong> ${card.schwäche}</div>` : ""}
+                  <div class="card-info">`;
+            
+            if (card.texts && card.texts.length > 0) {
+              card.texts.forEach(text => {
+                let formattedText = text.replace(/^([^:]+:)/, '<strong>$1</strong>');
+                html += `<div class="card-detail">${formattedText}</div>`;
+              });
+            }
+            
+            html += `
                   </div>
                 </div>
               </div>
@@ -767,7 +780,7 @@
           <div>Rang</div>
           <div>Rolle</div>
           <div>Anzahl</div>
-          <div>Stärke</div>
+          <div>Texte (getrennt durch |)</div>
           <div>Aktion</div>
         </div>
         <div id="card-editor"></div>

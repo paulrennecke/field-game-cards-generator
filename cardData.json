@@ -1,37 +1,47 @@
 [
-  {
-    "rang": 5,
-    "rolle": "Silberrücken",
-    "anzahl": 2,
-    "stärke": "Stärke: Schlägt alle außer den Frosch.",
-    "schwäche": "Wird nur vom Giftfrosch (1) besiegt."
-  },
-  {
-    "rang": 4,
-    "rolle": "Jaguar",
-    "anzahl": 6,
-    "stärke": "Stärke: Schlägt Ränge 1, 2 und 3.",
-    "schwäche": "Verliert gegen den Silberrücken (5)."
-  },
-  {
-    "rang": 3,
-    "rolle": "Expeditionsleiter",
-    "anzahl": 8,
-    "stärke": "Stärke: Schlägt Ränge 1 und 2.",
-    "schwäche": "Verliert gegen Jaguar (4) und Silberrücken (5)."
-  },
-  {
-    "rang": 2,
-    "rolle": "Früchtepflücker",
-    "anzahl": 6,
-    "stärke": "Spezialkraft: NUR DU darfst die goldene Ananas berühren und tragen!",
-    "schwäche": "Verliert gegen fast alle anderen (3, 4, 5)."
-  },
-  {
-    "rang": 1,
-    "rolle": "Giftfrosch",
-    "anzahl": 3,
-    "stärke": "Spezialkraft: Du bist der Einzige, der den Silberrücken (5) ausschaltet!",
-    "schwäche": "Verliert gegen die Ränge 2, 3 und 4."
-  }
+    {
+        "rang": 5,
+        "rolle": "Silberrücken",
+        "anzahl": 2,
+        "texts": [
+            "Stärke: Schlägt alle außer den Frosch.",
+            "Schwäche: Wird nur vom Giftfrosch (1) besiegt."
+        ]
+    },
+    {
+        "rang": 4,
+        "rolle": "Jaguar",
+        "anzahl": 6,
+        "texts": [
+            "Stärke: Schlägt Ränge 1, 2 und 3.",
+            "Schwäche: Verliert gegen den Silberrücken (5)."
+        ]
+    },
+    {
+        "rang": 3,
+        "rolle": "Expeditionsleiter",
+        "anzahl": 8,
+        "texts": [
+            "Stärke: Schlägt Ränge 1 und 2.",
+            "Schwäche: Verliert gegen Jaguar (4) und Silberrücken (5)."
+        ]
+    },
+    {
+        "rang": 2,
+        "rolle": "Früchtepflücker",
+        "anzahl": 6,
+        "texts": [
+            "Spezialkraft: NUR DU darfst die goldene Ananas berühren und tragen!",
+            "Schwäche: Verliert gegen fast alle anderen (3, 4, 5)."
+        ]
+    },
+    {
+        "rang": 1,
+        "rolle": "Giftfrosch",
+        "anzahl": 3,
+        "texts": [
+            "Spezialkraft: Du bist der Einzige, der den Silberrücken (5) ausschaltet!",
+            "Schwäche: Verliert gegen die Ränge 2, 3 und 4."
+        ]
+    }
 ]
