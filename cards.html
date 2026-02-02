@@ -1,0 +1,396 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dschungel Spielkarten</title>
+    <script>
+      // Card data - easily adjust the "anzahl" to change number of cards
+      let cardData = [
+        {
+          rang: 5,
+          rolle: "Silberrücken",
+          anzahl: 2,
+          besonderheit: "Die stärkste Kraft im Dschungel. Schlägt fast jeden.",
+        },
+        {
+          rang: 4,
+          rolle: "Jaguar",
+          anzahl: 6,
+          besonderheit: "Schnell, gefährlich und wendig.",
+        },
+        {
+          rang: 3,
+          rolle: "Expeditionsleiter",
+          anzahl: 8,
+          besonderheit: "Die erfahrenen Kämpfer im Unterholz.",
+        },
+        {
+          rang: 2,
+          rolle: "Früchtepflücker",
+          anzahl: 6,
+          besonderheit:
+            "Wichtig: Nur er hat die flinken Hände, um die goldene Ananas zu stehlen!",
+        },
+        {
+          rang: 1,
+          rolle: "Giftfrosch",
+          anzahl: 3,
+          besonderheit:
+            "Klein, aber oho: Nur er kann den mächtigen Silberrücken (5) ausschalten.",
+        },
+      ];
+
+      function updateTotal() {
+        const total = cardData.reduce((sum, card) => sum + parseInt(card.anzahl), 0);
+        document.getElementById('total-cards').textContent = total;
+      }
+
+      function renderEditor() {
+        const editor = document.getElementById('card-editor');
+        let html = '';
+        
+        cardData.forEach((card, index) => {
+          html += `
+            <div class="card-edit-row">
+              <input type="number" value="${card.rang}" onchange="updateCard(${index}, 'rang', this.value)" placeholder="Rang" min="1" max="5">
+              <input type="text" value="${card.rolle}" onchange="updateCard(${index}, 'rolle', this.value)" placeholder="Rolle">
+              <input type="number" value="${card.anzahl}" onchange="updateCard(${index}, 'anzahl', this.value)" placeholder="Anzahl" min="0">
+              <input type="text" value="${card.besonderheit}" onchange="updateCard(${index}, 'besonderheit', this.value)" placeholder="Besonderheit">
+              <button onclick="removeCard(${index})">🗑️</button>
+            </div>
+          `;
+        });
+        
+        editor.innerHTML = html;
+        updateTotal();
+      }
+
+      function updateCard(index, field, value) {
+        cardData[index][field] = (field === 'rang' || field === 'anzahl') ? parseInt(value) : value;
+        generateCards();
+        updateTotal();
+      }
+
+      function removeCard(index) {
+        cardData.splice(index, 1);
+        renderEditor();
+        generateCards();
+      }
+
+      function addCard() {
+        cardData.push({
+          rang: 1,
+          rolle: "Neue Rolle",
+          anzahl: 1,
+          besonderheit: "Beschreibung"
+        });
+        renderEditor();
+        generateCards();
+      }
+
+      function generateCards() {
+        const container = document.getElementById("card-container");
+        let html = "";
+        let cardCount = 0;
+        const cardsPerPage = 9;
+
+        cardData.forEach((card) => {
+          for (let i = 0; i < card.anzahl; i++) {
+            if (cardCount % cardsPerPage === 0) {
+              if (cardCount > 0) html += "</div>";
+              html += '<div class="page">';
+            }
+
+            html += `
+              <div class="card">
+                <img src="${card.rang}.png" alt="Rang ${card.rang}" class="card-background">
+                <div class="card-content">
+                  <div class="rank">Rang ${card.rang}</div>
+                  <div class="role-name">${card.rolle}</div>
+                  <div class="card-info">
+                    <div class="anzahl">Anzahl: ${card.anzahl}</div>
+                    <div class="besonderheit">${card.besonderheit}</div>
+                  </div>
+                </div>
+              </div>
+            `;
+            cardCount++;
+          }
+        });
+
+        html += "</div>";
+        container.innerHTML = html;
+      }
+
+      window.onload = function() {
+        renderEditor();
+        generateCards();
+      };
+    </script>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      @page {
+        size: A4;
+        margin: 10mm;
+      }
+
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f0f0f0;
+      }
+
+      .page {
+        width: 210mm;
+        min-height: 297mm;
+        padding: 5mm;
+        margin: 0 auto;
+        background-color: white;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 5mm;
+        justify-content: space-around;
+        align-content: flex-start;
+      }
+
+      .card {
+        width: 63mm;
+        height: 88mm;
+        position: relative;
+        border: 2px solid #333;
+        border-radius: 3mm;
+        overflow: hidden;
+        page-break-inside: avoid;
+        background-color: white;
+      }
+
+      .card-background {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        z-index: 0;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+
+      .card-content {
+        position: relative;
+        z-index: 1;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        padding: 5mm;
+        color: white;
+      }
+
+      .rank {
+        font-size: 14pt;
+        font-weight: bold;
+        text-align: center;
+        margin-bottom: 2mm;
+        color: #ffd700;
+      }
+
+      .role-name {
+        font-size: 16pt;
+        font-weight: bold;
+        text-align: center;
+        display: flex;
+        align-items: flex-start;
+        justify-content: center;
+        line-height: 1;
+        margin: 0;
+        padding: 1mm 2mm 0 2mm;
+        color: white;
+        text-transform: uppercase;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+        hyphens: auto;
+        max-width: 100%;
+      }
+
+      .card-info {
+        font-size: 10pt;
+        margin-top: auto;
+      }
+
+      .anzahl {
+        font-weight: bold;
+        margin-bottom: 2mm;
+        color: #ffd700;
+      }
+
+      .besonderheit {
+        font-size: 9pt;
+        line-height: 1.3;
+        background-color: rgba(0, 0, 0, 0.6);
+        padding: 2mm;
+        border-radius: 2mm;
+      }
+
+      @media print {
+        body {
+          background-color: #f0f0f0;
+          padding: 20px;
+        }
+
+        .page {
+          margin: 0 auto;
+          padding: 5mm;
+          background-color: white;
+        }
+
+        .card {
+          page-break-inside: avoid;
+        }
+
+        .card-background {
+          -webkit-print-color-adjust: exact !important;
+          print-color-adjust: exact !important;
+        }
+
+        .card-content {
+          -webkit-print-color-adjust: exact !important;
+          print-color-adjust: exact !important;
+        }
+
+        .control-panel {
+          display: none !important;
+        }
+      }
+
+      @media screen {
+        body {
+          padding: 20px;
+        }
+      }
+
+      .control-panel {
+        position: sticky;
+        top: 0;
+        background: white;
+        border: 2px solid #333;
+        border-radius: 8px;
+        padding: 20px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        z-index: 1000;
+      }
+
+      .control-panel h2 {
+        margin: 0 0 15px 0;
+        color: #333;
+      }
+
+      .editor-header {
+        display: grid;
+        grid-template-columns: 80px 200px 100px 1fr 50px;
+        gap: 10px;
+        margin-bottom: 10px;
+        font-weight: bold;
+        color: #555;
+        font-size: 14px;
+      }
+
+      .card-edit-row {
+        display: grid;
+        grid-template-columns: 80px 200px 100px 1fr 50px;
+        gap: 10px;
+        margin-bottom: 10px;
+        align-items: center;
+      }
+
+      .card-edit-row input {
+        padding: 8px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font-size: 14px;
+      }
+
+      .card-edit-row button {
+        padding: 8px;
+        background: #ff4444;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 16px;
+      }
+
+      .card-edit-row button:hover {
+        background: #cc0000;
+      }
+
+      .control-buttons {
+        margin-top: 15px;
+        display: flex;
+        gap: 10px;
+        align-items: center;
+      }
+
+      .control-buttons button {
+        padding: 10px 20px;
+        background: #4CAF50;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 14px;
+        font-weight: bold;
+      }
+
+      .control-buttons button:hover {
+        background: #45a049;
+      }
+
+      .control-buttons button.print-btn {
+        background: #2196F3;
+      }
+
+      .control-buttons button.print-btn:hover {
+        background: #0b7dda;
+      }
+
+      .total-display {
+        font-size: 18px;
+        font-weight: bold;
+        color: #333;
+        padding: 10px 20px;
+        background: #f0f0f0;
+        border-radius: 4px;
+      }
+
+      .total-display span {
+        color: #4CAF50;
+        font-size: 24px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="control-panel">
+      <h2>📝 Karten Editor</h2>
+      <div class="editor-header">
+        <div>Rang</div>
+        <div>Rolle</div>
+        <div>Anzahl</div>
+        <div>Besonderheit</div>
+        <div>Aktion</div>
+      </div>
+      <div id="card-editor"></div>
+      <div class="control-buttons">
+        <button onclick="addCard()">➕ Neue Karte hinzufügen</button>
+        <button class="print-btn" onclick="window.print()">🖨️ Drucken</button>
+        <div class="total-display">Gesamt: <span id="total-cards">0</span> Karten</div>
+      </div>
+    </div>
+    <div id="card-container"></div>
+  </body>
+</html>
