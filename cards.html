@@ -5,41 +5,81 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Dschungel Spielkarten</title>
     <script>
-      // Card data - easily adjust the "anzahl" to change number of cards
+      // Card data - loaded from JSON file or fallback
       let cardData = [
         {
           rang: 5,
           rolle: "Silberrücken",
-          anzahl: 2,
-          besonderheit: "Die stärkste Kraft im Dschungel. Schlägt fast jeden.",
+          anzahl: 4,
+          stärke:
+            "Spezialkraft: Die stärkste Kraft im Dschungel. Schlägt fast jeden.",
+          schwäche: "Wird nur vom Giftfrosch (1) besiegt.",
         },
         {
           rang: 4,
           rolle: "Jaguar",
           anzahl: 6,
-          besonderheit: "Schnell, gefährlich und wendig.",
+          stärke: "Stärke: Schlägt Ränge 1, 2 und 3.",
+          schwäche: "Verliert gegen den Silberrücken (5).",
         },
         {
           rang: 3,
-          rolle: "Expeditionsleiter",
+          rolle: "Expeditions-leiter",
           anzahl: 8,
-          besonderheit: "Die erfahrenen Kämpfer im Unterholz.",
+          stärke: "Stärke: Schlägt Ränge 1 und 2.",
+          schwäche: "Verliert gegen Jaguar (4) und Silberrücken (5).",
         },
         {
           rang: 2,
-          rolle: "Früchtepflücker",
-          anzahl: 6,
-          besonderheit:
-            "Wichtig: Nur er hat die flinken Hände, um die goldene Ananas zu stehlen!",
+          rolle: "Früchte-pflücker",
+          anzahl: 2,
+          stärke:
+            "Spezialkraft: NUR DU darfst die goldene Ananas berühren und tragen!",
+          schwäche: "Verliert gegen fast alle anderen (3, 4, 5).",
         },
         {
           rang: 1,
           rolle: "Giftfrosch",
-          anzahl: 3,
-          besonderheit:
-            "Klein, aber oho: Nur er kann den mächtigen Silberrücken (5) ausschalten.",
+          anzahl: 4,
+          stärke:
+            "Spezialkraft: Du bist der Einzige, der den Silberrücken (5) ausschaltet!",
+          schwäche: "Verliert gegen die Ränge 2, 3 und 4.",
         },
       ];
+
+      function loadCardDataFromFile(event) {
+        const file = event.target.files[0];
+        if (file) {
+          const reader = new FileReader();
+          reader.onload = function (e) {
+            try {
+              cardData = JSON.parse(e.target.result);
+              renderTeamEditor();
+              renderEditor();
+              generateCards();
+              alert("Kartendaten erfolgreich geladen!");
+            } catch (error) {
+              console.error("Error parsing JSON:", error);
+              alert(
+                "Fehler beim Lesen der JSON-Datei. Bitte überprüfe das Format.",
+              );
+            }
+          };
+          reader.readAsText(file);
+        }
+      }
+
+      function saveCardData() {
+        const dataStr = JSON.stringify(cardData, null, 2);
+        const dataBlob = new Blob([dataStr], { type: "application/json" });
+        const url = URL.createObjectURL(dataBlob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = "cardData.json";
+        link.click();
+        URL.revokeObjectURL(url);
+        alert("Kartendaten wurden als cardData.json heruntergeladen.");
+      }
 
       let teams = [
         { name: "Team 1", color: "#FF5733" },
@@ -52,13 +92,13 @@
           0,
         );
         const totalAllTeams = total * teams.length;
-        document.getElementById("total-cards").textContent = totalAllTeams;
 
         // Update team distribution - each team gets all cards
         let distribution = "";
         teams.forEach((team) => {
-          distribution += `<div style="color: ${team.color}; font-weight: bold;">${team.name}: ${total} Karten</div>`;
+          distribution += `<div style="color: ${team.color}; font-weight: bold; margin-bottom: 5px;">${team.name}: ${total} Karten</div>`;
         });
+        distribution += `<div style="margin-top: 10px; padding-top: 10px; border-top: 2px solid #ddd; font-weight: bold; color: #333;">Gesamt: <span style="color: #4caf50;">${totalAllTeams}</span> Karten</div>`;
         document.getElementById("team-distribution").innerHTML = distribution;
       }
 
@@ -136,7 +176,7 @@
               <input type="number" value="${card.rang}" onchange="updateCard(${index}, 'rang', this.value)" placeholder="Rang" min="1" max="5">
               <input type="text" value="${card.rolle}" onchange="updateCard(${index}, 'rolle', this.value)" placeholder="Rolle">
               <input type="number" value="${card.anzahl}" onchange="updateCard(${index}, 'anzahl', this.value)" placeholder="Anzahl" min="0">
-              <input type="text" value="${card.besonderheit}" onchange="updateCard(${index}, 'besonderheit', this.value)" placeholder="Besonderheit">
+              <input type="text" value="${card.stärke}" onchange="updateCard(${index}, 'stärke', this.value)" placeholder="Stärke">
               <button onclick="removeCard(${index})">🗑️</button>
             </div>
           `;
@@ -164,7 +204,7 @@
           rang: 1,
           rolle: "Neue Rolle",
           anzahl: 1,
-          besonderheit: "Beschreibung",
+          stärke: "Beschreibung",
         });
         renderEditor();
         generateCards();
@@ -189,7 +229,8 @@
                 rang: card.rang,
                 rolle: card.rolle,
                 anzahl: card.anzahl,
-                besonderheit: card.besonderheit,
+                stärke: card.stärke,
+                schwäche: card.schwäche,
                 teamColor: team.color,
                 teamName: team.name,
               });
@@ -199,6 +240,39 @@
 
         const totalCards = allCardsData.length;
 
+        // For screen view: show unique cards only (one of each rank)
+        html += '<div class="screen-only">';
+        html += '<div class="page page-front">';
+        cardData.forEach((card) => {
+          // Format stärke to highlight the label
+          let stärkeFormatted = card.stärke || "";
+          if (stärkeFormatted) {
+            stärkeFormatted = stärkeFormatted
+              .replace(/^(Stärke:)/, "<strong>$1</strong>")
+              .replace(/^(Spezialkraft:)/, "<strong>$1</strong>");
+          }
+          html += `
+            <div class="card-wrapper">
+              <div class="card-anzahl">Anzahl: ${card.anzahl}</div>
+              <div class="card">
+                <img src="${card.rang}.png" alt="Rang ${card.rang}" class="card-background">
+                <div class="card-content">
+                  <div class="rank">Rang ${card.rang}</div>
+                  <div class="role-name">${card.rolle}</div>
+                  <div class="card-info">
+                    ${stärkeFormatted ? `<div class="card-detail">${stärkeFormatted}</div>` : ""}
+                    ${card.schwäche ? `<div class="card-detail"><strong>Schwäche:</strong> ${card.schwäche}</div>` : ""}
+                  </div>
+                </div>
+              </div>
+            </div>
+          `;
+        });
+        html += "</div>";
+        html += "</div>";
+
+        // For print view: show all cards with duplicates
+        html += '<div class="print-only">';
         // Generate pages: alternating front and back
         const totalPages = Math.ceil(totalCards / cardsPerPage);
         for (let page = 0; page < totalPages; page++) {
@@ -209,6 +283,13 @@
           html += '<div class="page page-front">';
           for (let i = startIdx; i < endIdx; i++) {
             const card = allCardsData[i];
+            // Format stärke to highlight the label
+            let stärkeFormatted = card.stärke || "";
+            if (stärkeFormatted) {
+              stärkeFormatted = stärkeFormatted
+                .replace(/^(Stärke:)/, "<strong>$1</strong>")
+                .replace(/^(Spezialkraft:)/, "<strong>$1</strong>");
+            }
             html += `
               <div class="card">
                 <img src="${card.rang}.png" alt="Rang ${card.rang}" class="card-background">
@@ -216,8 +297,8 @@
                   <div class="rank">Rang ${card.rang}</div>
                   <div class="role-name">${card.rolle}</div>
                   <div class="card-info">
-                    <div class="anzahl">Anzahl: ${card.anzahl}</div>
-                    <div class="besonderheit">${card.besonderheit}</div>
+                    ${stärkeFormatted ? `<div class="card-detail">${stärkeFormatted}</div>` : ""}
+                    ${card.schwäche ? `<div class="card-detail"><strong>Schwäche:</strong> ${card.schwäche}</div>` : ""}
                   </div>
                 </div>
               </div>
@@ -249,6 +330,7 @@
           }
           html += "</div>";
         }
+        html += "</div>";
 
         container.innerHTML = html;
       }
@@ -387,25 +469,74 @@
       }
 
       .card-info {
-        font-size: 10pt;
+        font-size: 8pt;
         margin-top: auto;
       }
 
-      .anzahl {
-        font-weight: bold;
+      .card-detail {
         margin-bottom: 2mm;
+        line-height: 1.3;
+        background-color: rgba(0, 0, 0, 0.7);
+        padding: 2mm;
+        border-radius: 2mm;
+        color: white;
+      }
+
+      .card-detail:last-child {
+        margin-bottom: 0;
+      }
+
+      .card-detail strong {
         color: #ffd700;
       }
 
-      .besonderheit {
-        font-size: 9pt;
-        line-height: 1.3;
-        background-color: rgba(0, 0, 0, 0.6);
-        padding: 2mm;
-        border-radius: 2mm;
+      .screen-only {
+        display: block;
+      }
+
+      .screen-only .page {
+        width: auto;
+        min-height: auto;
+        padding: 20px;
+        margin: 0 auto;
+        background-color: transparent;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+        justify-content: center;
+        align-content: flex-start;
+      }
+
+      .card-wrapper {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .card-anzahl {
+        font-size: 14pt;
+        font-weight: bold;
+        color: #333;
+        margin-bottom: 8px;
+        background: #ffd700;
+        padding: 5px 15px;
+        border-radius: 5px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+      }
+
+      .print-only {
+        display: none;
       }
 
       @media print {
+        .screen-only {
+          display: none !important;
+        }
+
+        .print-only {
+          display: block !important;
+        }
+
         body {
           background-color: #f0f0f0;
           padding: 20px;
@@ -453,15 +584,12 @@
       }
 
       .control-panel {
-        position: sticky;
-        top: 0;
         background: white;
         border: 2px solid #333;
         border-radius: 8px;
         padding: 20px;
         margin-bottom: 20px;
         box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        z-index: 1000;
       }
 
       .control-panel h2 {
@@ -631,6 +759,50 @@
     <div class="control-panel">
       <h2>📝 Karten Editor</h2>
 
+      <h3 onclick="toggleSection('cards-section-content')">
+        ▼ 🎴 Karten Konfiguration
+      </h3>
+      <div id="cards-section-content" class="section-content">
+        <div class="editor-header">
+          <div>Rang</div>
+          <div>Rolle</div>
+          <div>Anzahl</div>
+          <div>Stärke</div>
+          <div>Aktion</div>
+        </div>
+        <div id="card-editor"></div>
+        <div class="control-buttons">
+          <button onclick="addCard()">➕ Neue Karte hinzufügen</button>
+          <label
+            for="load-json"
+            style="
+              padding: 10px 20px;
+              background: #9c27b0;
+              color: white;
+              border: none;
+              border-radius: 4px;
+              cursor: pointer;
+              font-size: 14px;
+              font-weight: bold;
+              display: inline-block;
+            "
+          >
+            📂 Kartendaten laden
+          </label>
+          <input
+            type="file"
+            id="load-json"
+            accept=".json"
+            onchange="loadCardDataFromFile(event)"
+            style="display: none"
+          />
+          <button onclick="saveCardData()" style="background: #ff9800">
+            💾 Kartendaten speichern
+          </button>
+          <button class="print-btn" onclick="window.print()">🖨️ Drucken</button>
+        </div>
+      </div>
+
       <h3 onclick="toggleSection('team-section-content')">
         ▼ 👥 Team Konfiguration
       </h3>
@@ -652,27 +824,6 @@
             ➕ Team hinzufügen
           </button>
           <div id="team-distribution"></div>
-        </div>
-      </div>
-
-      <h3 onclick="toggleSection('cards-section-content')">
-        ▼ 🎴 Karten Konfiguration
-      </h3>
-      <div id="cards-section-content" class="section-content">
-        <div class="editor-header">
-          <div>Rang</div>
-          <div>Rolle</div>
-          <div>Anzahl</div>
-          <div>Besonderheit</div>
-          <div>Aktion</div>
-        </div>
-        <div id="card-editor"></div>
-        <div class="control-buttons">
-          <button onclick="addCard()">➕ Neue Karte hinzufügen</button>
-          <button class="print-btn" onclick="window.print()">🖨️ Drucken</button>
-          <div class="total-display">
-            Gesamt: <span id="total-cards">0</span> Karten
-          </div>
         </div>
       </div>
     </div>
