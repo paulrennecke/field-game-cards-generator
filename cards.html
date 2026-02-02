@@ -13,7 +13,7 @@
           anzahl: 4,
           texts: [
             "Spezialkraft: Die stärkste Kraft im Dschungel. Schlägt fast jeden.",
-            "Schwäche: Wird nur vom Giftfrosch (1) besiegt."
+            "Schwäche: Wird nur vom Giftfrosch (1) besiegt.",
           ],
         },
         {
@@ -22,7 +22,7 @@
           anzahl: 6,
           texts: [
             "Stärke: Schlägt Ränge 1, 2 und 3.",
-            "Schwäche: Verliert gegen den Silberrücken (5)."
+            "Schwäche: Verliert gegen den Silberrücken (5).",
           ],
         },
         {
@@ -31,7 +31,7 @@
           anzahl: 8,
           texts: [
             "Stärke: Schlägt Ränge 1 und 2.",
-            "Schwäche: Verliert gegen Jaguar (4) und Silberrücken (5)."
+            "Schwäche: Verliert gegen Jaguar (4) und Silberrücken (5).",
           ],
         },
         {
@@ -40,7 +40,7 @@
           anzahl: 2,
           texts: [
             "Spezialkraft: NUR DU darfst die goldene Ananas berühren und tragen!",
-            "Schwäche: Verliert gegen fast alle anderen (3, 4, 5)."
+            "Schwäche: Verliert gegen fast alle anderen (3, 4, 5).",
           ],
         },
         {
@@ -49,7 +49,7 @@
           anzahl: 4,
           texts: [
             "Spezialkraft: Du bist der Einzige, der den Silberrücken (5) ausschaltet!",
-            "Schwäche: Verliert gegen die Ränge 2, 3 und 4."
+            "Schwäche: Verliert gegen die Ränge 2, 3 und 4.",
           ],
         },
       ];
@@ -179,13 +179,13 @@
 
         cardData.forEach((card, index) => {
           if (!card.texts) card.texts = [];
-          const textsStr = card.texts.join(' | ');
+          const textsStr = card.texts.join(" | ");
           html += `
             <div class="card-edit-row">
               <input type="number" value="${card.rang}" onchange="updateCard(${index}, 'rang', this.value)" placeholder="Rang" min="1" max="5">
               <input type="text" value="${card.rolle}" onchange="updateCard(${index}, 'rolle', this.value)" placeholder="Rolle">
               <input type="number" value="${card.anzahl}" onchange="updateCard(${index}, 'anzahl', this.value)" placeholder="Anzahl" min="0">
-              <input type="text" value="${textsStr.replace(/"/g, '&quot;')}" onchange="updateCardTextsFromString(${index}, this.value)" placeholder="Texte (getrennt durch |)" style="flex: 1;">
+              <input type="text" value="${textsStr.replace(/"/g, "&quot;")}" onchange="updateCardTextsFromString(${index}, this.value)" placeholder="Texte (getrennt durch |)" style="flex: 1;">
               <button onclick="removeCard(${index})">🗑️</button>
             </div>
           `;
@@ -203,7 +203,10 @@
       }
 
       function updateCardTextsFromString(cardIndex, value) {
-        cardData[cardIndex].texts = value.split('|').map(t => t.trim()).filter(t => t);
+        cardData[cardIndex].texts = value
+          .split("|")
+          .map((t) => t.trim())
+          .filter((t) => t);
         generateCards();
       }
 
@@ -266,14 +269,17 @@
                   <div class="rank">Rang ${card.rang}</div>
                   <div class="role-name">${card.rolle}</div>
                   <div class="card-info">`;
-          
+
           if (card.texts && card.texts.length > 0) {
-            card.texts.forEach(text => {
-              let formattedText = text.replace(/^([^:]+:)/, '<strong>$1</strong>');
+            card.texts.forEach((text) => {
+              let formattedText = text.replace(
+                /^([^:]+:)/,
+                "<strong>$1</strong>",
+              );
               html += `<div class="card-detail">${formattedText}</div>`;
             });
           }
-          
+
           html += `
                   </div>
                 </div>
@@ -303,14 +309,17 @@
                   <div class="rank">Rang ${card.rang}</div>
                   <div class="role-name">${card.rolle}</div>
                   <div class="card-info">`;
-            
+
             if (card.texts && card.texts.length > 0) {
-              card.texts.forEach(text => {
-                let formattedText = text.replace(/^([^:]+:)/, '<strong>$1</strong>');
+              card.texts.forEach((text) => {
+                let formattedText = text.replace(
+                  /^([^:]+:)/,
+                  "<strong>$1</strong>",
+                );
                 html += `<div class="card-detail">${formattedText}</div>`;
               });
             }
-            
+
             html += `
                   </div>
                 </div>
