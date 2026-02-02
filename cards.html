@@ -43,36 +43,39 @@
 
       let teams = [
         { name: "Team 1", color: "#FF5733" },
-        { name: "Team 2", color: "#33B5FF" }
+        { name: "Team 2", color: "#33B5FF" },
       ];
 
       function updateTotal() {
-        const total = cardData.reduce((sum, card) => sum + parseInt(card.anzahl), 0);
+        const total = cardData.reduce(
+          (sum, card) => sum + parseInt(card.anzahl),
+          0,
+        );
         const totalAllTeams = total * teams.length;
-        document.getElementById('total-cards').textContent = totalAllTeams;
-        
+        document.getElementById("total-cards").textContent = totalAllTeams;
+
         // Update team distribution - each team gets all cards
-        let distribution = '';
+        let distribution = "";
         teams.forEach((team) => {
           distribution += `<div style="color: ${team.color}; font-weight: bold;">${team.name}: ${total} Karten</div>`;
         });
-        document.getElementById('team-distribution').innerHTML = distribution;
+        document.getElementById("team-distribution").innerHTML = distribution;
       }
 
       function renderTeamEditor() {
-        const editor = document.getElementById('team-editor');
-        let html = '';
-        
+        const editor = document.getElementById("team-editor");
+        let html = "";
+
         teams.forEach((team, index) => {
           html += `
             <div class="team-edit-row">
               <input type="text" value="${team.name}" onchange="updateTeam(${index}, 'name', this.value)" placeholder="Team Name">
               <input type="color" value="${team.color}" onchange="updateTeam(${index}, 'color', this.value)">
-              <button onclick="removeTeam(${index})" ${teams.length <= 1 ? 'disabled' : ''}>🗑️</button>
+              <button onclick="removeTeam(${index})" ${teams.length <= 1 ? "disabled" : ""}>🗑️</button>
             </div>
           `;
         });
-        
+
         editor.innerHTML = html;
         updateTotal();
       }
@@ -92,11 +95,20 @@
       }
 
       function addTeam() {
-        const colors = ['#FF5733', '#33FF57', '#3357FF', '#F333FF', '#FFD700', '#00CED1', '#FF1493', '#32CD32'];
+        const colors = [
+          "#FF5733",
+          "#33FF57",
+          "#3357FF",
+          "#F333FF",
+          "#FFD700",
+          "#00CED1",
+          "#FF1493",
+          "#32CD32",
+        ];
         const randomColor = colors[teams.length % colors.length];
         teams.push({
           name: `Team ${teams.length + 1}`,
-          color: randomColor
+          color: randomColor,
         });
         renderTeamEditor();
         generateCards();
@@ -105,19 +117,19 @@
       function toggleSection(sectionId) {
         const section = document.getElementById(sectionId);
         const button = event.target;
-        if (section.style.display === 'none') {
-          section.style.display = 'block';
-          button.textContent = button.textContent.replace('▶', '▼');
+        if (section.style.display === "none") {
+          section.style.display = "block";
+          button.textContent = button.textContent.replace("▶", "▼");
         } else {
-          section.style.display = 'none';
-          button.textContent = button.textContent.replace('▼', '▶');
+          section.style.display = "none";
+          button.textContent = button.textContent.replace("▼", "▶");
         }
       }
 
       function renderEditor() {
-        const editor = document.getElementById('card-editor');
-        let html = '';
-        
+        const editor = document.getElementById("card-editor");
+        let html = "";
+
         cardData.forEach((card, index) => {
           html += `
             <div class="card-edit-row">
@@ -129,13 +141,14 @@
             </div>
           `;
         });
-        
+
         editor.innerHTML = html;
         updateTotal();
       }
 
       function updateCard(index, field, value) {
-        cardData[index][field] = (field === 'rang' || field === 'anzahl') ? parseInt(value) : value;
+        cardData[index][field] =
+          field === "rang" || field === "anzahl" ? parseInt(value) : value;
         generateCards();
         updateTotal();
       }
@@ -151,7 +164,7 @@
           rang: 1,
           rolle: "Neue Rolle",
           anzahl: 1,
-          besonderheit: "Beschreibung"
+          besonderheit: "Beschreibung",
         });
         renderEditor();
         generateCards();
@@ -159,8 +172,11 @@
 
       function generateCards() {
         const container = document.getElementById("card-container");
-        const cardsPerSet = cardData.reduce((sum, card) => sum + parseInt(card.anzahl), 0);
-        
+        const cardsPerSet = cardData.reduce(
+          (sum, card) => sum + parseInt(card.anzahl),
+          0,
+        );
+
         let html = "";
         const cardsPerPage = 9;
         const allCardsData = [];
@@ -175,7 +191,7 @@
                 anzahl: card.anzahl,
                 besonderheit: card.besonderheit,
                 teamColor: team.color,
-                teamName: team.name
+                teamName: team.name,
               });
             }
           });
@@ -188,7 +204,7 @@
         for (let page = 0; page < totalPages; page++) {
           const startIdx = page * cardsPerPage;
           const endIdx = Math.min(startIdx + cardsPerPage, totalCards);
-          
+
           // Front page
           html += '<div class="page page-front">';
           for (let i = startIdx; i < endIdx; i++) {
@@ -237,7 +253,7 @@
         container.innerHTML = html;
       }
 
-      window.onload = function() {
+      window.onload = function () {
         renderTeamEditor();
         renderEditor();
         generateCards();
@@ -444,7 +460,7 @@
         border-radius: 8px;
         padding: 20px;
         margin-bottom: 20px;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
         z-index: 1000;
       }
 
@@ -575,7 +591,7 @@
 
       .control-buttons button {
         padding: 10px 20px;
-        background: #4CAF50;
+        background: #4caf50;
         color: white;
         border: none;
         border-radius: 4px;
@@ -589,7 +605,7 @@
       }
 
       .control-buttons button.print-btn {
-        background: #2196F3;
+        background: #2196f3;
       }
 
       .control-buttons button.print-btn:hover {
@@ -606,7 +622,7 @@
       }
 
       .total-display span {
-        color: #4CAF50;
+        color: #4caf50;
         font-size: 24px;
       }
     </style>
@@ -614,17 +630,34 @@
   <body>
     <div class="control-panel">
       <h2>📝 Karten Editor</h2>
-      
-      <h3 onclick="toggleSection('team-section-content')">▼ 👥 Team Konfiguration</h3>
+
+      <h3 onclick="toggleSection('team-section-content')">
+        ▼ 👥 Team Konfiguration
+      </h3>
       <div id="team-section-content" class="section-content">
         <div class="team-section">
           <div id="team-editor"></div>
-          <button onclick="addTeam()" style="padding: 8px 15px; background: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer; margin-top: 10px;">➕ Team hinzufügen</button>
+          <button
+            onclick="addTeam()"
+            style="
+              padding: 8px 15px;
+              background: #4caf50;
+              color: white;
+              border: none;
+              border-radius: 4px;
+              cursor: pointer;
+              margin-top: 10px;
+            "
+          >
+            ➕ Team hinzufügen
+          </button>
           <div id="team-distribution"></div>
         </div>
       </div>
 
-      <h3 onclick="toggleSection('cards-section-content')">▼ 🎴 Karten Konfiguration</h3>
+      <h3 onclick="toggleSection('cards-section-content')">
+        ▼ 🎴 Karten Konfiguration
+      </h3>
       <div id="cards-section-content" class="section-content">
         <div class="editor-header">
           <div>Rang</div>
@@ -637,7 +670,9 @@
         <div class="control-buttons">
           <button onclick="addCard()">➕ Neue Karte hinzufügen</button>
           <button class="print-btn" onclick="window.print()">🖨️ Drucken</button>
-          <div class="total-display">Gesamt: <span id="total-cards">0</span> Karten</div>
+          <div class="total-display">
+            Gesamt: <span id="total-cards">0</span> Karten
+          </div>
         </div>
       </div>
     </div>
